@@ -12,17 +12,17 @@ sess = tf.InteractiveSession()
 
 x = tf.placeholder(tf.float32, shape=[None, 4])
 target = tf.placeholder(tf.float32, shape=[None,1])
+lr = tf.placeholder(tf.float32)
 
+W_fc1 = weight_variable([4, 100])
+b_fc1 = bias_variable([100])
+h_fc1 = tf.nn.sigmoid(tf.matmul(x, W_fc1) + b_fc1)
 
-W_fc1 = weight_variable([4, 50])
-b_fc1 = bias_variable([50])
-h_fc1 = tf.nn.relu(tf.matmul(x, W_fc1) + b_fc1)
+W_fc2 = weight_variable([100, 200])
+b_fc2 = bias_variable([200])
+h_fc2 = tf.nn.sigmoid(tf.matmul(h_fc1, W_fc2) + b_fc2)
 
-W_fc2 = weight_variable([50, 50])
-b_fc2 = bias_variable([50])
-h_fc2 = tf.nn.relu(tf.matmul(h_fc1, W_fc2) + b_fc2)
-
-W_fc3 = weight_variable([50, 2])
+W_fc3 = weight_variable([200, 2])
 b_fc3 = bias_variable([2])
 
 q_values = tf.matmul(h_fc2, W_fc3) + b_fc3
@@ -35,7 +35,7 @@ with tf.name_scope('loss'):
     # loss = tf.clip_by_value(loss, 0, 10)
     tf.scalar_summary('TD Error', loss)
 
-train_step = tf.train.AdamOptimizer(1e-1).minimize(loss)
+train_step = tf.train.AdamOptimizer(lr).minimize(loss)
 
 merged = tf.merge_all_summaries()
 train_writer = tf.train.SummaryWriter('./train', sess.graph)
@@ -46,7 +46,7 @@ def getAction(state):
     a=int(a[0])
     return a
 
-def learn(sample,episode):
+def learn(sample,episode, rate):
     st=[]
     a=[]
     reward=[]
@@ -61,7 +61,7 @@ def learn(sample,episode):
         q_t1_max = sess.run([q_a_max], feed_dict={x: en})
         t=[]
         for i in range(len(q_t1_max[0])):
-            t.append([reward[i] + 0.9 * q_t1_max[0][i]])
+            t.append([reward[i] + 0.95 * q_t1_max[0][i]])
 
-        gg, summary = sess.run([train_step, merged], feed_dict={target: t, x: st})
-        train_writer.add_summary(summary,episode)
+    gg, summary = sess.run([train_step, merged], feed_dict={target: t, x: st, lr: rate})
+    train_writer.add_summary(summary,episode)

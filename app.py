@@ -9,11 +9,17 @@ for i_episode in range(2000):
         env.render()
         s=observation
         action = dql.getAction(observation)
-        if random.uniform(1,0)<0.2:
-            action = randint(0,1)
+        if i_episode < 200:
+            epsilon = 0.8
+        if i_episode >= 200 and i_episode <=500:
+            epsilon = 0.4
+        if i_episode > 500:
+            epsilon = 0.2
+        if random.uniform(0,1)<epsilon:
+            action = int(random.getrandbits(1))
         observation, reward, done, info = env.step(action)
         dql.learn(s,reward, observation, i_episode)
-        
+
         if done:
             print("Episode {} finished after {} timesteps".format(i_episode, t+1))
             break

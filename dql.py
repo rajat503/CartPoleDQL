@@ -15,15 +15,15 @@ target = tf.placeholder(tf.float32)
 
 g=tf.reshape(x, [4,1])
 x_t=tf.transpose(g)
-W_fc1 = weight_variable([4, 200])
-b_fc1 = bias_variable([200])
-h_fc1 = tf.nn.relu(tf.matmul(x_t, W_fc1) + b_fc1)
+W_fc1 = weight_variable([4, 10])
+b_fc1 = bias_variable([10])
+h_fc1 = tf.nn.sigmoid(tf.matmul(x_t, W_fc1) + b_fc1)
 
-W_fc2 = weight_variable([200, 200])
-b_fc2 = bias_variable([200])
-h_fc2 = tf.nn.relu(tf.matmul(h_fc1, W_fc2) + b_fc2)
+W_fc2 = weight_variable([10, 10])
+b_fc2 = bias_variable([10])
+h_fc2 = tf.nn.sigmoid(tf.matmul(h_fc1, W_fc2) + b_fc2)
 
-W_fc3 = weight_variable([200, 2])
+W_fc3 = weight_variable([10, 2])
 b_fc3 = bias_variable([2])
 
 q_values = tf.matmul(h_fc2, W_fc3) + b_fc3
@@ -36,7 +36,7 @@ with tf.name_scope('loss'):
     # loss = tf.clip_by_value(loss, 0, 1)
     tf.scalar_summary('TD Error', loss)
 
-train_step = tf.train.AdamOptimizer(1e-4).minimize(loss)
+train_step = tf.train.AdamOptimizer(1e-5).minimize(loss)
 
 merged = tf.merge_all_summaries()
 train_writer = tf.train.SummaryWriter('./train', sess.graph)
