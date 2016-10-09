@@ -20,12 +20,11 @@ for i_episode in range(5000):
             replay_memory.popleft()
         replay_memory.append([s, action, reward, observation])
 
-        if len(replay_memory) < 100:
-            dql_sample.learn([[s, action, reward, observation]])
-        else:
-            sample = [ replay_memory[i] for i in random.sample(range(len(replay_memory)), 100) ]
-            dql_sample.learn(sample)
-
         if done:
+            if len(replay_memory) < 100:
+                dql_sample.learn([[s, action, reward, observation]], i_episode)
+            else:
+                sample = [ replay_memory[i] for i in random.sample(range(len(replay_memory)), 100) ]
+                dql_sample.learn(sample, i_episode)
             print("Episode {} finished after {} timesteps".format(i_episode, t+1))
             break

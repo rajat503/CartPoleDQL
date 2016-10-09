@@ -8,7 +8,6 @@ def bias_variable(shape):
   initial = tf.constant(0.1, shape=shape)
   return tf.Variable(initial)
 
-#create session
 sess = tf.InteractiveSession()
 
 x = tf.placeholder(tf.float32, shape=[None, 4])
@@ -47,7 +46,7 @@ def getAction(state):
     a=int(a[0])
     return a
 
-def learn(sample):
+def learn(sample,episode):
     st=[]
     a=[]
     reward=[]
@@ -60,11 +59,11 @@ def learn(sample):
         reward.append(i[2])
         en.append(i[3])
 
-    for __ in range(20):
+    for epoc in range(50):
         q_t1_max = sess.run([q_a_max], feed_dict={x: en})
-
+        t=[]
         for i in range(len(q_t1_max[0])):
             t.append([reward[i] + 0.9 * q_t1_max[0][i]])
 
         gg, summary = sess.run([train_step, merged], feed_dict={target: t, x: st})
-    train_writer.add_summary(summary, i)
+        train_writer.add_summary(summary, (episode-1)*50 + (epoc+1))

@@ -8,7 +8,6 @@ def bias_variable(shape):
   initial = tf.constant(0.1, shape=shape)
   return tf.Variable(initial)
 
-#create session
 sess = tf.InteractiveSession()
 
 x = tf.placeholder(tf.float32, shape=[4])
