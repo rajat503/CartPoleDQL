@@ -12,13 +12,13 @@ def bias_variable(shape):
 sess = tf.InteractiveSession()
 
 x = tf.placeholder(tf.float32, shape=[4])
-target = tf.placeholder(tf.float32, shape=[2])
+target = tf.placeholder(tf.float32)
 
 g=tf.reshape(x, [4,1])
-y=tf.transpose(g)
+x_t=tf.transpose(g)
 W_fc1 = weight_variable([4, 200])
 b_fc1 = bias_variable([200])
-h_fc1 = tf.nn.relu(tf.matmul(y, W_fc1) + b_fc1)
+h_fc1 = tf.nn.relu(tf.matmul(x_t, W_fc1) + b_fc1)
 
 W_fc2 = weight_variable([200, 200])
 b_fc2 = bias_variable([200])
@@ -32,26 +32,25 @@ q_values = tf.matmul(h_fc2, W_fc3) + b_fc3
 action  = tf.argmax(q_values, 1)
 q_a_max = tf.reduce_max(q_values)
 
-loss = tf.reduce_sum(tf.square(tf.sub(target, q_values)))
+loss = tf.square(target- q_a_max)
 with tf.name_scope('loss'):
-    # loss = tf.clip_by_value(loss, -200, 200)
+    # loss = tf.clip_by_value(loss, 0, 1)
     tf.scalar_summary('TD Error', loss)
 
-train_step = tf.train.AdamOptimizer(1e-5).minimize(loss)
+train_step = tf.train.AdamOptimizer(1e-4).minimize(loss)
 
 merged = tf.merge_all_summaries()
 train_writer = tf.train.SummaryWriter('./train', sess.graph)
 sess.run(tf.initialize_all_variables())
 
 def getAction(state):
-    a, q_s = sess.run([action, q_values], feed_dict={x:state})
+    a = sess.run([action], feed_dict={x:state})
     a=int(a[0])
-    q_s=q_s[0]
-    return q_s, a
+    return a
 
-def learn(initial_state,reward_p, state, i, q_s, a):
+def learn(st, reward_p, state, i):
     q_t1_max = sess.run([q_a_max], feed_dict={x: state})
-    q_s[a] = reward_p + 0.9 * float(q_t1_max[0])
-    for _ in range(20):
-        _, error, summary = sess.run([train_step, loss, merged], feed_dict={target: q_s, x: initial_state})
+    t=reward_p + 0.9 * q_t1_max[0]
+    for __ in range(20):
+        gg, summary = sess.run([train_step, merged], feed_dict={target: t, x: st})
     train_writer.add_summary(summary, i)
