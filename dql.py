@@ -49,8 +49,8 @@ def getAction(state):
     return a
 
 def learn(st, reward_p, state, i):
-    q_t1_max = sess.run([q_a_max], feed_dict={x: state})
-    t=reward_p + 0.9 * q_t1_max[0]
     for __ in range(20):
+        q_t1_max = sess.run([q_a_max], feed_dict={x: state})
+        t=reward_p + 0.9 * q_t1_max[0]
         gg, summary = sess.run([train_step, merged], feed_dict={target: t, x: st})
     train_writer.add_summary(summary, i)
