@@ -15,15 +15,15 @@ target = tf.placeholder(tf.float32)
 
 g=tf.reshape(x, [4,1])
 x_t=tf.transpose(g)
-W_fc1 = weight_variable([4, 10])
-b_fc1 = bias_variable([10])
+W_fc1 = weight_variable([4, 100])
+b_fc1 = bias_variable([100])
 h_fc1 = tf.nn.sigmoid(tf.matmul(x_t, W_fc1) + b_fc1)
 
-W_fc2 = weight_variable([10, 10])
-b_fc2 = bias_variable([10])
+W_fc2 = weight_variable([100, 200])
+b_fc2 = bias_variable([200])
 h_fc2 = tf.nn.sigmoid(tf.matmul(h_fc1, W_fc2) + b_fc2)
 
-W_fc3 = weight_variable([10, 2])
+W_fc3 = weight_variable([200, 2])
 b_fc3 = bias_variable([2])
 
 q_values = tf.matmul(h_fc2, W_fc3) + b_fc3
@@ -33,10 +33,10 @@ q_a_max = tf.reduce_max(q_values)
 
 loss = tf.square(target- q_a_max)
 with tf.name_scope('loss'):
-    # loss = tf.clip_by_value(loss, 0, 1)
+    # loss = tf.clip_by_value(loss, 0, 1
     tf.scalar_summary('TD Error', loss)
 
-train_step = tf.train.AdamOptimizer(1e-5).minimize(loss)
+train_step = tf.train.AdamOptimizer(1e-2).minimize(loss)
 
 merged = tf.merge_all_summaries()
 train_writer = tf.train.SummaryWriter('./train', sess.graph)
@@ -48,8 +48,8 @@ def getAction(state):
     return a
 
 def learn(st, reward_p, state, i):
-    for __ in range(20):
-        q_t1_max = sess.run([q_a_max], feed_dict={x: state})
-        t=reward_p + 0.9 * q_t1_max[0]
-        gg, summary = sess.run([train_step, merged], feed_dict={target: t, x: st})
+    # for __ in range(20):
+    q_t1_max = sess.run([q_a_max], feed_dict={x: state})
+    t=reward_p + 0.9 * q_t1_max[0]
+    gg, summary = sess.run([train_step, merged], feed_dict={target: t, x: st})
     train_writer.add_summary(summary, i)

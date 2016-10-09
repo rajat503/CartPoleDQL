@@ -17,12 +17,12 @@ for i_episode in range(50000):
         action = dql_sample.getAction(observation)
         if i_episode <50:
             epsilon = 0.8
-            rate = 1e-6
+            rate = 1e-1
         if i_episode >50:
             epsilon = 0.8
-            rate = 1e-4
+            rate = 1e-1
         if i_episode >= 200 and i_episode <=300:
-            epsilon = 0.4
+            epsilon = 0.2
         if i_episode > 300:
             epsilon = 0.3
         if i_episode > 4000:

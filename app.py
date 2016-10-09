@@ -3,7 +3,7 @@ from random import randint
 import dql
 import gym
 env = gym.make('CartPole-v0')
-for i_episode in range(2000):
+for i_episode in range(20000):
     observation = env.reset()
     for t in range(1000):
         env.render()
@@ -15,11 +15,14 @@ for i_episode in range(2000):
             epsilon = 0.4
         if i_episode > 500:
             epsilon = 0.2
+        if i_episode > 1200:
+            epsilon = 0.2
         if random.uniform(0,1)<epsilon:
             action = int(random.getrandbits(1))
         observation, reward, done, info = env.step(action)
+        if done:
+            reward = -100
         dql.learn(s,reward, observation, i_episode)
-
         if done:
             print("Episode {} finished after {} timesteps".format(i_episode, t+1))
             break
