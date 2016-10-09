@@ -32,10 +32,10 @@ q_a_max = tf.reduce_max(q_values, reduction_indices=1)
 
 loss = tf.reduce_sum(tf.square(tf.sub(target, q_a_max)))
 with tf.name_scope('loss'):
-    # loss = tf.clip_by_value(loss, 0, 1)
+    # loss = tf.clip_by_value(loss, 0, 10)
     tf.scalar_summary('TD Error', loss)
 
-train_step = tf.train.AdamOptimizer(1e-4).minimize(loss)
+train_step = tf.train.AdamOptimizer(1e-1).minimize(loss)
 
 merged = tf.merge_all_summaries()
 train_writer = tf.train.SummaryWriter('./train', sess.graph)
@@ -58,12 +58,10 @@ def learn(sample,episode):
         a.append(i[1])
         reward.append(i[2])
         en.append(i[3])
-
-    for epoc in range(50):
         q_t1_max = sess.run([q_a_max], feed_dict={x: en})
         t=[]
         for i in range(len(q_t1_max[0])):
             t.append([reward[i] + 0.9 * q_t1_max[0][i]])
 
         gg, summary = sess.run([train_step, merged], feed_dict={target: t, x: st})
-        train_writer.add_summary(summary, (episode-1)*50 + (epoc+1))
+        train_writer.add_summary(summary,episode)
